@@ -2,6 +2,7 @@ package com.zitego.sql;
 
 import java.sql.*;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * An implementation of the JDBC driver interface that is used for connection pooling.
@@ -43,27 +44,26 @@ public class Driver implements java.sql.Driver, java.io.Serializable
      * @param url
      * @return boolean
      */
+    @Override
     public boolean acceptsURL(String url)
     {
         if (url == null) return false;
-        if ( url.startsWith("jdbc:zitego:pool") ) return true;
-        else return false;
+        else return url.startsWith("jdbc:zitego:pool");
     }
 
     /**
      * Returns a connection for the supplied url using information in the supplied properties.
      *
-     * @param String The url.
-     * @param String The properties (not currently used).
+     * @param properties
      */
+    @Override
     public java.sql.Connection connect(String url, Properties properties) throws SQLException
     {
         //See if we can connect to this url
         if ( !acceptsURL(url) ) return null;
 
         // Get the name of the pool to connect to from the url.
-        String poolName = null;
-        poolName = url.substring(url.lastIndexOf(":") + 1);
+        String poolName = url.substring(url.lastIndexOf(":") + 1);
         try
         {
             return ConnectionFactory.getInstance().getConnection(poolName);
@@ -74,24 +74,33 @@ public class Driver implements java.sql.Driver, java.io.Serializable
         }
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;
     }
 
+    @Override
     public DriverPropertyInfo[] getPropertyInfo(String string, Properties properties) throws SQLException
     {
         DriverPropertyInfo info[] = new DriverPropertyInfo[0];
         return info;
     }
 
+    @Override
     public boolean jdbcCompliant()
     {
         return false;
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
